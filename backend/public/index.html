@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Panel - Kondorito</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body { font-family: Arial; }
+
+#map {
+height: 500px;
+margin-top: 20px;
+}
+
+input {
+width: 300px;
+padding: 6px;
+}
+
+button {
+padding: 8px 15px;
+cursor: pointer;
+}
+
+.suggestions{
+border:1px solid #ccc;
+width:300px;
+background:white;
+position:absolute;
+z-index:1000;
+}
+
+.suggestion{
+padding:6px;
+cursor:pointer;
+}
+
+.suggestion:hover{
+background:#eee;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Crear Pedido</h2>
+
+<label>ID Domiciliario:</label><br>
+<input id="idDomiciliario" placeholder="domiciliario_1"><br><br>
+
+<label>Dirección de Recogida:</label><br>
+<input id="pickupAddress" oninput="buscarDireccion('pickup')">
+<div id="pickupSuggestions" class="suggestions"></div>
+<br><br>
+
+<label>Dirección de Entrega:</label><br>
+<input id="deliveryAddress" oninput="buscarDireccion('delivery')">
+<div id="deliverySuggestions" class="suggestions"></div>
+<br><br>
+
+<button onclick="crearPedido()">Enviar Pedido</button>
+
+<p id="respuesta"></p>
+
+<hr>
+
+<h2>Mapa en Tiempo Real</h2>
+
+<div id="map"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+const socket = io();
+
+const map = L.map('map').setView([7.1193, -73.1227], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+
+// ============================
+// VARIABLES
+// ============================
+
+let marcadores = {};
+let rutasPorDomiciliario = {};
+let marcadoresPickup = {};
+let marcadoresDelivery = {};
+
+
+// ============================
+// ICONO MOTO
+// ============================
+
+const iconoDomiciliario = L.icon({
+iconUrl: "https://cdn-icons-png.flaticon.com/512/1048/1048313.png",
+iconSize: [38,38],
+iconAnchor: [19,38]
+});
+
+
+// ============================
+// COLORES POR DOMICILIARIO
+// ============================
+
+const colores = [
+"blue",
+"red",
+"green",
+"orange",
+"purple",
+"black"
+];
+
+function obtenerColor(id){
+
+let numero = id.match(/\d+/);
+
+if(!numero) return "blue";
+
+let index = (parseInt(numero[0]) - 1) % colores.length;
+
+return colores[index];
+
+}
+
+
+// ============================
+// UBICACION DOMICILIARIOS
+// ============================
+
+socket.on("ubicacion_domiciliario", (data) => {
+
+const { id, lat, lng } = data;
+
+if (!id) return;
+
+if (marcadores[id]) {
+
+marcadores[id].setLatLng([lat, lng]);
+
+} else {
+
+marcadores[id] = L.marker([lat, lng],{icon:iconoDomiciliario})
+.addTo(map)
+.bindPopup("🛵 " + id);
+
+}
+
+});
+
+
+// ============================
+// AUTOCOMPLETADO DIRECCIONES
+// ============================
+
+let timeoutDireccion = null;
+
+async function buscarDireccion(tipo){
+
+let input = tipo === "pickup" ? "pickupAddress" : "deliveryAddress";
+let box = tipo === "pickup" ? "pickupSuggestions" : "deliverySuggestions";
+
+let query = document.getElementById(input).value;
+
+if(query.length < 3){
+document.getElementById(box).innerHTML = "";
+return;
+}
+
+clearTimeout(timeoutDireccion);
+
+timeoutDireccion = setTimeout(async () => {
+
+try {
+
+let res = await fetch("/buscar-direccion?q=" + encodeURIComponent(query));
+let data = await res.json();
+
+let html = "";
+
+data.forEach(d => {
+
+let direccion = d.display_name;
+let lat = d.lat;
+let lon = d.lon;
+
+html += `
+<div class="suggestion"
+onclick="seleccionarDireccion('${tipo}','${direccion}',${lat},${lon})">
+${direccion}
+</div>
+`;
+
+});
+
+document.getElementById(box).innerHTML = html;
+
+} catch (err) {
+console.log("Error buscando dirección:", err);
+}
+
+}, 600);
+
+}
+
+
+// ============================
+// GUARDAR COORDENADAS
+// ============================
+
+window.pickupLat = null;
+window.pickupLng = null;
+window.deliveryLat = null;
+window.deliveryLng = null;
+
+function seleccionarDireccion(tipo, direccion, lat, lon){
+
+let input = tipo === "pickup" ? "pickupAddress" : "deliveryAddress";
+let box = tipo === "pickup" ? "pickupSuggestions" : "deliverySuggestions";
+
+document.getElementById(input).value = direccion;
+document.getElementById(box).innerHTML = "";
+
+if(tipo === "pickup"){
+window.pickupLat = parseFloat(lat);
+window.pickupLng = parseFloat(lon);
+} else {
+window.deliveryLat = parseFloat(lat);
+window.deliveryLng = parseFloat(lon);
+}
+
+}
+
+
+// ============================
+// CREAR PEDIDO
+// ============================
+
+async function crearPedido(){
+
+if(!window.pickupLat || !window.deliveryLat){
+alert("Debes seleccionar direcciones del autocompletado");
+return;
+}
+
+const idDomiciliario = document.getElementById("idDomiciliario").value;
+
+const response = await fetch("/crear-pedido",{
+method:"POST",
+headers:{ "Content-Type":"application/json"},
+body: JSON.stringify({
+idDomiciliario,
+pickupLat: window.pickupLat,
+pickupLng: window.pickupLng,
+deliveryLat: window.deliveryLat,
+deliveryLng: window.deliveryLng
+})
+});
+
+const data = await response.json();
+
+if(!data.ok){
+document.getElementById("respuesta").innerText = "❌ Error: "+data.error;
+return;
+}
+
+document.getElementById("respuesta").innerText = "✅ Pedido enviado";
+
+const {pickupLat,pickupLng,deliveryLat,deliveryLng} = data;
+
+
+// ============================
+// LIMPIAR MARCADORES ANTERIORES DE ESE DOMICILIARIO
+// ============================
+
+if(marcadoresPickup[idDomiciliario]){
+map.removeLayer(marcadoresPickup[idDomiciliario]);
+}
+
+if(marcadoresDelivery[idDomiciliario]){
+map.removeLayer(marcadoresDelivery[idDomiciliario]);
+}
+
+if(rutasPorDomiciliario[idDomiciliario]){
+map.removeLayer(rutasPorDomiciliario[idDomiciliario]);
+}
+
+
+// ============================
+// MARCADORES
+// ============================
+
+marcadoresPickup[idDomiciliario] = L.marker([pickupLat,pickupLng])
+.addTo(map)
+.bindPopup("📦 Recoger");
+
+marcadoresDelivery[idDomiciliario] = L.marker([deliveryLat,deliveryLng])
+.addTo(map)
+.bindPopup("🏠 Entregar");
+
+
+// ============================
+// RUTA
+// ============================
+
+const rutaResponse = await fetch(
+`https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${deliveryLng},${deliveryLat}?overview=full&geometries=geojson`
+);
+
+const rutaData = await rutaResponse.json();
+
+const coordenadas = rutaData.routes[0].geometry.coordinates.map(c => [c[1],c[0]]);
+
+const colorRuta = obtenerColor(idDomiciliario);
+
+rutasPorDomiciliario[idDomiciliario] = L.polyline(coordenadas,{
+color:colorRuta,
+weight:5
+}).addTo(map);
+
+map.fitBounds([
+[pickupLat,pickupLng],
+[deliveryLat,deliveryLng]
+]);
+
+}
+
+</script>
+
+</body>
+</html>
