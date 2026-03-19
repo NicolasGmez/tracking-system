@@ -56,8 +56,14 @@ socket.on("connect", () => {
 
   console.log("Conectado al servidor");
 
+  document.getElementById("conexionEstado").innerText = "🟢 Conectado";
+
   socket.emit("registrar_domiciliario");
 
+});
+
+socket.on("disconnect", () => {
+  document.getElementById("conexionEstado").innerText = "🔴 Desconectado";
 });
 
 
@@ -66,11 +72,15 @@ socket.on("id_asignado", (id) => {
 
   console.log("Mi ID es:", id);
 
+  document.getElementById("domId").innerText = id;
+
 });
 
 
 // Recibir pedido
 socket.on("pedido_asignado", async (pedido) => {
+
+  document.getElementById("estado").innerText = "🚚 En ruta hacia el pedido";
 
   const pickup = [pedido.pickupLat, pedido.pickupLng];
   const delivery = [pedido.deliveryLat, pedido.deliveryLng];

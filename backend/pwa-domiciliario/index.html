@@ -11,13 +11,96 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
   <style>
-    body { margin: 0; }
-    #map { height: 100vh; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* 🔥 PANEL SUPERIOR */
+    .top-bar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status {
+      font-size: 14px;
+    }
+
+    .status span {
+      font-weight: bold;
+      color: #00ff88;
+    }
+
+    /* 🔥 TARJETA INFERIOR */
+    .bottom-card {
+      position: absolute;
+      bottom: 15px;
+      left: 10px;
+      right: 10px;
+      background: white;
+      padding: 15px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    .bottom-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+
+    .info {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      background: #eee;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<!-- 🔵 BARRA SUPERIOR -->
+<div class="top-bar">
+  <div>🛵 <strong>Kondorito</strong></div>
+  <div class="status">
+    ID: <span id="domId">...</span>
+  </div>
+</div>
+
+<!-- 🔵 TARJETA INFERIOR -->
+<div class="bottom-card">
+  <h3>Estado</h3>
+  <div class="info" id="estado">
+    Esperando pedido...
+  </div>
+  <div class="badge" id="conexionEstado">
+    🔴 Desconectado
+  </div>
+</div>
 
 <script>
   if ('serviceWorker' in navigator) {
