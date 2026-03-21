@@ -176,42 +176,71 @@ socket.on("pedido_asignado", async (pedido) => {
 // ============================
 
 const swipeBtn = document.getElementById("swipeBtn");
+const swipeContainer = document.querySelector(".swipe-container");
 
-if (swipeBtn) {
+if (swipeBtn && swipeContainer) {
 
   let startX = 0;
+  let currentX = 0;
+  let maxMove = 0;
 
   swipeBtn.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
+
+    // 🔥 calcular ancho real disponible
+    maxMove = swipeContainer.offsetWidth - swipeBtn.offsetWidth;
   });
 
   swipeBtn.addEventListener("touchmove", (e) => {
 
-    let moveX = e.touches[0].clientX - startX;
+    currentX = e.touches[0].clientX - startX;
 
-    if (moveX > 0 && moveX < 200) {
-      swipeBtn.style.transform = `translateX(${moveX}px)`;
-    }
+    if (currentX < 0) currentX = 0;
+    if (currentX > maxMove) currentX = maxMove;
+
+    swipeBtn.style.transform = `translateX(${currentX}px)`;
 
   });
 
   swipeBtn.addEventListener("touchend", () => {
 
-    const transform = swipeBtn.style.transform;
-    const moved = transform.includes("translateX") ? parseInt(transform.match(/\d+/)) : 0;
+    // 🔥 si llegó al final REAL (90% del recorrido)
+    if (currentX >= maxMove * 0.9) {
 
-    if (moved > 150) {
-
-      console.log("✅ Pedido entregado");
+      console.log("✅ Pedido ENTREGADO");
 
       document.getElementById("estado").innerText = "✅ Entregado";
+      document.getElementById("pedidoTexto").innerText = "Sin pedido...";
+      document.getElementById("direccionTexto").innerText = "Dirección destino...";
 
-      // 🔥 aquí luego puedes emitir al backend
+      // 🔥 LIMPIAR MAPA COMPLETAMENTE
+      if (pickupMarker) {
+        map.removeLayer(pickupMarker);
+        pickupMarker = null;
+      }
+
+      if (deliveryMarker) {
+        map.removeLayer(deliveryMarker);
+        deliveryMarker = null;
+      }
+
+      if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+      }
+
+      // 🔥 (FUTURO BACKEND)
       // socket.emit("pedido_entregado", { id: miId });
 
     }
 
+    // 🔁 RESET SIEMPRE
+    swipeBtn.style.transition = "0.3s";
     swipeBtn.style.transform = "translateX(0)";
+
+    setTimeout(() => {
+      swipeBtn.style.transition = "0s";
+    }, 300);
 
   });
 
