@@ -51,6 +51,10 @@ background:#eee;
 <label>ID Domiciliario:</label><br>
 <input id="idDomiciliario" placeholder="domiciliario_1"><br><br>
 
+<!-- 🔥 NUEVO CAMPO -->
+<label>Descripción del Pedido:</label><br>
+<input id="descripcionPedido" placeholder="Ej: Pastel tres leches 20 personas"><br><br>
+
 <label>Dirección de Recogida:</label><br>
 <input id="pickupAddress" oninput="buscarDireccion('pickup')">
 <div id="pickupSuggestions" class="suggestions"></div>
@@ -261,7 +265,12 @@ idDomiciliario,
 pickupLat: window.pickupLat,
 pickupLng: window.pickupLng,
 deliveryLat: window.deliveryLat,
-deliveryLng: window.deliveryLng
+deliveryLng: window.deliveryLng,
+
+// 🔥 NUEVO
+descripcion: document.getElementById("descripcionPedido").value,
+deliveryAddress: document.getElementById("deliveryAddress").value
+
 })
 });
 
@@ -278,7 +287,7 @@ const {pickupLat,pickupLng,deliveryLat,deliveryLng} = data;
 
 
 // ============================
-// LIMPIAR MARCADORES ANTERIORES DE ESE DOMICILIARIO
+// LIMPIAR SOLO ESTE DOMICILIARIO
 // ============================
 
 if(marcadoresPickup[idDomiciliario]){

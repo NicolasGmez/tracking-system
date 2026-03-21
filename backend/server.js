@@ -167,6 +167,8 @@ app.post("/crear-pedido", async (req, res) => {
       pickupLng,
       deliveryLat,
       deliveryLng,
+      descripcion: req.body.descripcion,
+      direccion: req.body.deliveryAddress
     });
 
     console.log("Pedido enviado a:", idDomiciliario);
