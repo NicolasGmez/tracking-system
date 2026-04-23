@@ -1,39 +1,39 @@
-# 🚚 Kondorito — Delivery Tracking PWA
+# 🚚 Kondorito Tracking — Delivery PWA
 
-Aplicación web progresiva (PWA) para seguimiento de pedidos en tiempo real, pensada para domiciliarios.
+Mobile-first Progressive Web App for real-time delivery tracking, 
+built for the courier role within a larger food delivery platform.
 
-## Demo
+## Overview
 
-Próximamente
+This module handles the courier-side experience of an order delivery 
+system. It connects to a Node.js backend via WebSockets for real-time 
+communication, tracks the courier's live location using the browser 
+Geolocation API, and renders an interactive map with the optimal route 
+between pickup and dropoff points.
 
-## Funcionalidades
+## Features
 
-- Visualización del pedido activo  
-- ID dinámico del domiciliario (desde backend)  
-- Mapa interactivo con ruta (Leaflet)  
-- Ubicación en tiempo real  
-- Swipe para marcar pedido como entregado  
-- Expandir / minimizar mapa  
-- Estado de conexión  
+- Real-time WebSocket connection with automatic courier registration
+- Live location tracking via browser `watchPosition` API
+- Interactive map with Leaflet — custom markers for courier, pickup and dropoff
+- Optimal route rendering using OSRM (Open Source Routing Machine)
+- Swipe gesture to confirm delivery and reset the interface
+- Collapsible map for better mobile UX
+- Connection status indicator
 
-## Stack técnico
+## Tech Stack
 
-**Frontend:** React, Leaflet, CSS (mobile-first)  
-**Backend:** Node.js / Express  
-**Base de datos:** PostgreSQL  
+- **Frontend:** React, Leaflet, Socket.io client, CSS (mobile-first)
+- **Backend:** Node.js, Express, Socket.io
+- **Routing:** OSRM API
+- **Type:** PWA with mobile-first design
 
-## Correr localmente
+## Status
 
-### Backend
-```bash
-cd backend
-npm install
-npm run dev
+Fully operational MVP. Pending: database persistence, 
+authentication and order history.
 
-Notas
-Diseñado principalmente para uso en celular
-El swipe completa el pedido y limpia la vista
-Próximo paso: persistir entregas en base de datos
+## Context
 
-Autor
-Juan Nicolás Gómez
+This module is part of Kondorito, a full delivery management 
+platform currently under development as a university final project.
