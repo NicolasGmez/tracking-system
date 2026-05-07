@@ -19,11 +19,10 @@ const io = new Server(server, {
   cors: { origin: "*" },
 });
 
-// 🔥 DOMICILIARIOS CONECTADOS
+// Domiciliarios activos en memoria, indexados por el ID asignado.
 const domiciliarios = {};
 
 function obtenerIdDisponible() {
-
   let numero = 1;
 
   while (domiciliarios["domiciliario_" + numero]) {
@@ -34,12 +33,10 @@ function obtenerIdDisponible() {
 }
 
 io.on("connection", (socket) => {
-
   console.log("Cliente conectado:", socket.id);
 
-  // 🔵 REGISTRAR DOMICILIARIO
+  // Registra un domiciliario nuevo y le asigna el primer ID disponible.
   socket.on("registrar_domiciliario", () => {
-
     const idDomiciliario = obtenerIdDisponible();
 
     domiciliarios[idDomiciliario] = {
@@ -53,13 +50,10 @@ io.on("connection", (socket) => {
     console.log("Nuevo domiciliario:", idDomiciliario);
 
     socket.emit("id_asignado", idDomiciliario);
-
   });
 
-
-  // 🔵 RECIBIR UBICACIÓN
+  // Actualiza la ubicacion del domiciliario y la publica al panel.
   socket.on("ubicacion", ({ lat, lng }) => {
-
     const idDomiciliario = socket.idDomiciliario;
 
     if (!idDomiciliario) {
@@ -68,7 +62,6 @@ io.on("connection", (socket) => {
     }
 
     if (domiciliarios[idDomiciliario]) {
-
       domiciliarios[idDomiciliario].lat = lat;
       domiciliarios[idDomiciliario].lng = lng;
 
@@ -86,34 +79,22 @@ io.on("connection", (socket) => {
         lat: lat,
         lng: lng
       });
-
     }
-
   });
 
-
   socket.on("disconnect", () => {
-
     if (socket.idDomiciliario) {
-
       console.log(socket.idDomiciliario, "desconectado");
 
       delete domiciliarios[socket.idDomiciliario];
-
     } else {
-
       console.log("Cliente desconectado:", socket.id);
-
     }
-
   });
-
 });
 
-
-// 🔵 AUTOCOMPLETADO DE DIRECCIONES (OpenStreetMap)
+// Consulta sugerencias de direccion usando Nominatim.
 app.get("/buscar-direccion", async (req, res) => {
-
   const q = req.query.q;
 
   if (!q || q.length < 3) {
@@ -121,7 +102,6 @@ app.get("/buscar-direccion", async (req, res) => {
   }
 
   try {
-
     const response = await axios.get(
       "https://nominatim.openstreetmap.org/search",
       {
@@ -138,20 +118,14 @@ app.get("/buscar-direccion", async (req, res) => {
     );
 
     res.json(response.data);
-
   } catch (error) {
-
     console.log("Error buscando dirección:", error.message);
     res.json([]);
-
   }
-
 });
 
-
-// 🔵 CREAR PEDIDO
+// Envia un pedido al domiciliario seleccionado si esta conectado.
 app.post("/crear-pedido", async (req, res) => {
-
   const { idDomiciliario, pickupLat, pickupLng, deliveryLat, deliveryLng } = req.body;
 
   if (!pickupLat || !deliveryLat) {
@@ -161,7 +135,6 @@ app.post("/crear-pedido", async (req, res) => {
   const domiciliario = domiciliarios[idDomiciliario];
 
   if (domiciliario) {
-
     io.to(domiciliario.socketId).emit("pedido_asignado", {
       pickupLat,
       pickupLng,
@@ -172,11 +145,8 @@ app.post("/crear-pedido", async (req, res) => {
     });
 
     console.log("Pedido enviado a:", idDomiciliario);
-
   } else {
-
     console.log("Domiciliario no conectado");
-
   }
 
   res.json({
@@ -186,9 +156,7 @@ app.post("/crear-pedido", async (req, res) => {
     deliveryLat,
     deliveryLng
   });
-
 });
-
 
 server.listen(3000, () => {
   console.log("Servidor corriendo en puerto 3000");

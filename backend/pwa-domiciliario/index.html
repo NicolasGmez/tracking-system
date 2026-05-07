@@ -18,27 +18,22 @@
 <body>
 
 <div class="app">
-
-  <!-- 🔝 HEADER -->
+  <!-- Encabezado con identificacion del domiciliario. -->
   <div class="header">
     <div>🛵 Kondorito</div>
     <div>ID: <span id="domId">---</span></div>
   </div>
 
-  <!-- 🧁 PEDIDO -->
   <div class="pedido-bar" id="pedidoTexto">
     🧁 Sin pedido...
   </div>
 
-  <!-- 🗺️ MAPA -->
   <div class="map-container">
     <div id="map"></div>
     <div class="map-btn" onclick="toggleMap()">⛶</div>
   </div>
 
-  <!-- 📍 ACCIONES -->
   <div class="accion-card">
-
     <div class="direccion" id="direccionTexto">
       📍 Dirección destino...
     </div>
@@ -47,15 +42,12 @@
       <div class="swipe-text">Desliza para entregar</div>
       <div class="swipe-btn" id="swipeBtn">➤</div>
     </div>
-
   </div>
 
-  <!-- 🚚 FOOTER -->
   <div class="estado-footer">
     <div id="estado">🚚 En espera</div>
     <div id="conexionEstado">🔴 Desconectado</div>
   </div>
-
 </div>
 
 <script>

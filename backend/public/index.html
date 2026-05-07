@@ -51,7 +51,6 @@ background:#eee;
 <label>ID Domiciliario:</label><br>
 <input id="idDomiciliario" placeholder="domiciliario_1"><br><br>
 
-<!-- 🔥 NUEVO CAMPO -->
 <label>Descripción del Pedido:</label><br>
 <input id="descripcionPedido" placeholder="Ej: Pastel tres leches 20 personas"><br><br>
 
@@ -88,31 +87,17 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-
-// ============================
-// VARIABLES
-// ============================
-
 let marcadores = {};
 let rutasPorDomiciliario = {};
 let marcadoresPickup = {};
 let marcadoresDelivery = {};
 
-
-// ============================
-// ICONO MOTO
-// ============================
-
+// Icono usado para ubicar a cada domiciliario en el mapa.
 const iconoDomiciliario = L.icon({
 iconUrl: "https://cdn-icons-png.flaticon.com/512/1048/1048313.png",
 iconSize: [38,38],
 iconAnchor: [19,38]
 });
-
-
-// ============================
-// COLORES POR DOMICILIARIO
-// ============================
 
 const colores = [
 "blue",
@@ -123,6 +108,7 @@ const colores = [
 "black"
 ];
 
+// Mantiene un color de ruta estable a partir del numero del domiciliario.
 function obtenerColor(id){
 
 let numero = id.match(/\d+/);
@@ -135,11 +121,7 @@ return colores[index];
 
 }
 
-
-// ============================
-// UBICACION DOMICILIARIOS
-// ============================
-
+// Recibe las coordenadas en tiempo real y mueve el marcador correspondiente.
 socket.on("ubicacion_domiciliario", (data) => {
 
 const { id, lat, lng } = data;
@@ -160,13 +142,9 @@ marcadores[id] = L.marker([lat, lng],{icon:iconoDomiciliario})
 
 });
 
-
-// ============================
-// AUTOCOMPLETADO DIRECCIONES
-// ============================
-
 let timeoutDireccion = null;
 
+// Busca direcciones con debounce para evitar demasiadas peticiones.
 async function buscarDireccion(tipo){
 
 let input = tipo === "pickup" ? "pickupAddress" : "deliveryAddress";
@@ -215,16 +193,12 @@ console.log("Error buscando dirección:", err);
 
 }
 
-
-// ============================
-// GUARDAR COORDENADAS
-// ============================
-
 window.pickupLat = null;
 window.pickupLng = null;
 window.deliveryLat = null;
 window.deliveryLng = null;
 
+// Guarda la direccion seleccionada y sus coordenadas.
 function seleccionarDireccion(tipo, direccion, lat, lon){
 
 let input = tipo === "pickup" ? "pickupAddress" : "deliveryAddress";
@@ -243,11 +217,7 @@ window.deliveryLng = parseFloat(lon);
 
 }
 
-
-// ============================
-// CREAR PEDIDO
-// ============================
-
+// Crea el pedido, lo envia al backend y dibuja la ruta asignada.
 async function crearPedido(){
 
 if(!window.pickupLat || !window.deliveryLat){
@@ -266,11 +236,8 @@ pickupLat: window.pickupLat,
 pickupLng: window.pickupLng,
 deliveryLat: window.deliveryLat,
 deliveryLng: window.deliveryLng,
-
-// 🔥 NUEVO
 descripcion: document.getElementById("descripcionPedido").value,
 deliveryAddress: document.getElementById("deliveryAddress").value
-
 })
 });
 
@@ -285,11 +252,6 @@ document.getElementById("respuesta").innerText = "✅ Pedido enviado";
 
 const {pickupLat,pickupLng,deliveryLat,deliveryLng} = data;
 
-
-// ============================
-// LIMPIAR SOLO ESTE DOMICILIARIO
-// ============================
-
 if(marcadoresPickup[idDomiciliario]){
 map.removeLayer(marcadoresPickup[idDomiciliario]);
 }
@@ -302,11 +264,6 @@ if(rutasPorDomiciliario[idDomiciliario]){
 map.removeLayer(rutasPorDomiciliario[idDomiciliario]);
 }
 
-
-// ============================
-// MARCADORES
-// ============================
-
 marcadoresPickup[idDomiciliario] = L.marker([pickupLat,pickupLng])
 .addTo(map)
 .bindPopup("📦 Recoger");
@@ -314,11 +271,6 @@ marcadoresPickup[idDomiciliario] = L.marker([pickupLat,pickupLng])
 marcadoresDelivery[idDomiciliario] = L.marker([deliveryLat,deliveryLng])
 .addTo(map)
 .bindPopup("🏠 Entregar");
-
-
-// ============================
-// RUTA
-// ============================
 
 const rutaResponse = await fetch(
 `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${deliveryLng},${deliveryLat}?overview=full&geometries=geojson`

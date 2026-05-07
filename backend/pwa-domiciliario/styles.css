@@ -5,14 +5,14 @@ html, body {
   font-family: Arial;
 }
 
-/* 📱 APP CONTENEDOR */
+/* Estructura principal de la PWA. */
 .app {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
 
-/* 🔝 HEADER */
+/* Barra superior con nombre de la app e ID asignado. */
 .header {
   display: flex;
   justify-content: space-between;
@@ -22,7 +22,7 @@ html, body {
   font-weight: bold;
 }
 
-/* 🧁 PEDIDO */
+/* Resumen del pedido activo. */
 .pedido-bar {
   margin: 8px;
   padding: 10px;
@@ -32,7 +32,7 @@ html, body {
   text-align: center;
 }
 
-/* 🗺️ MAPA FLEXIBLE */
+/* Contenedor flexible del mapa. */
 .map-container {
   position: relative;
   flex: 1;
@@ -43,7 +43,7 @@ html, body {
   height: 100%;
 }
 
-/* ⛶ BOTÓN */
+/* Boton para alternar el mapa en pantalla completa. */
 .map-btn {
   position: absolute;
   right: 15px;
@@ -54,18 +54,17 @@ html, body {
   z-index: 500;
 }
 
-/* 📍 ACCIONES */
+/* Panel inferior de direccion y accion principal. */
 .accion-card {
   padding: 12px;
   background: #f9f9f9;
 }
 
-/* DIRECCIÓN */
 .direccion {
   margin-bottom: 10px;
 }
 
-/* SWIPE */
+/* Control tactil para confirmar la entrega. */
 .swipe-container {
   position: relative;
   height: 50px;
@@ -91,7 +90,7 @@ html, body {
   line-height: 50px;
 }
 
-/* 🚚 FOOTER (YA NO SE PIERDE) */
+/* Estado operativo y conexion del domiciliario. */
 .estado-footer {
   display: flex;
   justify-content: space-between;
@@ -100,7 +99,7 @@ html, body {
   border-top: 1px solid #ccc;
 }
 
-/* 🔥 FULLSCREEN REAL */
+/* Vista de mapa expandida. */
 .fullscreen {
   position: fixed !important;
   top: 0;
