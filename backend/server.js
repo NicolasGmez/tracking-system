@@ -12,7 +12,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/pwa", express.static(path.join(__dirname, "pwa-domiciliario")));
-app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+  res.send(`
+    <h1>Kondorito Tracking API</h1>
+    <p>Servidor de tracking activo.</p>
+    <p>Abre la PWA en: <a href="/pwa/?domiciliario_id=1">/pwa/?domiciliario_id=1</a></p>
+  `);
+});
 
 const server = http.createServer(app);
 
