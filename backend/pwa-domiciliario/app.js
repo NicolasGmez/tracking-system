@@ -1,4 +1,4 @@
-const socket = io("https://callie-solemn-echoingly.ngrok-free.dev", {
+const socket = io(window.location.origin, {
   transports: ["websocket"]
 });
 
@@ -10,6 +10,10 @@ let routeLine;
 
 let registrado = false;
 let miId = null;
+let pedidoActivoId = null;
+
+const params = new URLSearchParams(window.location.search);
+const domiciliarioId = params.get("domiciliario_id");
 
 // Icono que representa la posicion actual del domiciliario.
 const motoIcon = L.icon({
@@ -52,11 +56,19 @@ navigator.geolocation.watchPosition((position) => {
 });
 
 socket.on("connect", () => {
-  console.log("🟢 Conectado al servidor");
+  console.log("Conectado al servidor");
 
-  document.getElementById("conexionEstado").innerText = "🟢 Conectado";
+  document.getElementById("conexionEstado").innerText = "Conectado";
 
-  socket.emit("registrar_domiciliario");
+  if (!domiciliarioId) {
+    console.error("No se recibio domiciliario_id en la URL");
+    document.getElementById("estado").innerText = "Falta domiciliario_id";
+    return;
+  }
+
+  socket.emit("registrar_domiciliario", {
+    domiciliarioId: Number(domiciliarioId)
+  });
 });
 
 socket.on("disconnect", () => {
@@ -68,19 +80,39 @@ socket.on("disconnect", () => {
   miId = null;
 });
 
-socket.on("id_asignado", (id) => {
-  console.log("✅ Mi ID es:", id);
+socket.on("domiciliario_registrado", (domiciliario) => {
+  console.log("Domiciliario registrado:", domiciliario);
 
-  miId = id;
+  miId = domiciliario.id;
   registrado = true;
 
-  document.getElementById("domId").innerText = id;
-  document.getElementById("estado").innerText = "🟢 Disponible";
+  document.getElementById("domId").innerText = domiciliario.id;
+  document.getElementById("estado").innerText = "Disponible";
+});
+
+socket.on("error_registro", (error) => {
+  console.error("Error de registro:", error.mensaje);
+
+  registrado = false;
+  miId = null;
+
+  document.getElementById("estado").innerText = error.mensaje;
+});
+
+socket.on("pedido_entregado_confirmado", ({ pedidoId }) => {
+  console.log("Pedido entregado confirmado:", pedidoId);
 });
 
 // Muestra el pedido asignado y calcula la ruta entre recogida y entrega.
 socket.on("pedido_asignado", async (pedido) => {
   console.log("📦 Pedido recibido:", pedido);
+    
+  pedidoActivoId = pedido.pedidoId;
+
+  socket.emit("pedido_en_camino", {
+    pedidoId: pedidoActivoId,
+    domiciliarioId: miId
+  });
 
   document.getElementById("pedidoTexto").innerText =
     pedido.descripcion || "Pedido";
@@ -172,7 +204,14 @@ if (swipeBtn && swipeContainer) {
         routeLine = null;
       }
 
-      // socket.emit("pedido_entregado", { id: miId });
+      if (pedidoActivoId) {
+        socket.emit("pedido_entregado", {
+          pedidoId: pedidoActivoId,
+          domiciliarioId: miId
+        });
+
+        pedidoActivoId = null;
+      }
     }
 
     swipeBtn.style.transition = "0.3s";
