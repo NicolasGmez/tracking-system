@@ -15,9 +15,255 @@ app.use("/pwa", express.static(path.join(__dirname, "pwa-domiciliario")));
 
 app.get("/", (req, res) => {
   res.send(`
-    <h1>Kondorito Tracking API</h1>
-    <p>Servidor de tracking activo.</p>
-    <p>Abre la PWA en: <a href="/pwa/?domiciliario_id=1">/pwa/?domiciliario_id=1</a></p>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Domiciliarios Kondorito</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+      <style>
+        :root {
+          --primary: #8b3f0b;
+          --accent: #e96b12;
+          --pink: #ffd6ea;
+          --cream: #fff7d1;
+          --text: #273142;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          margin: 0;
+          min-height: 100vh;
+          font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          color: var(--text);
+          background:
+            radial-gradient(circle at top left, rgba(255, 247, 209, 0.95), transparent 36rem),
+            linear-gradient(135deg, #fffdf7 0%, #ffe5f2 52%, #fff8d7 100%);
+        }
+
+        .page {
+          width: min(100%, 980px);
+          margin: 0 auto;
+          padding: 28px 16px 36px;
+        }
+
+        .brand {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 32px;
+        }
+
+        .brand-icon {
+          width: 54px;
+          height: 54px;
+          border-radius: 999px;
+          display: grid;
+          place-items: center;
+          background: #fff8bd;
+          color: var(--primary);
+          font-size: 26px;
+          box-shadow: 0 12px 30px rgba(139, 63, 11, 0.12);
+        }
+
+        .brand h1 {
+          margin: 0;
+          font-family: "Playfair Display", serif;
+          color: var(--primary);
+          font-size: clamp(28px, 8vw, 46px);
+          line-height: 1;
+        }
+
+        .brand p {
+          margin: 4px 0 0;
+          color: #6b7280;
+          font-size: 15px;
+        }
+
+        .hero {
+          margin-bottom: 24px;
+        }
+
+        .eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.76);
+          color: var(--accent);
+          font-weight: 800;
+          box-shadow: 0 10px 24px rgba(139, 63, 11, 0.08);
+        }
+
+        .hero h2 {
+          margin: 18px 0 10px;
+          color: var(--primary);
+          font-size: clamp(30px, 9vw, 58px);
+          line-height: 1.02;
+          letter-spacing: 0;
+        }
+
+        .hero p {
+          margin: 0;
+          max-width: 680px;
+          color: #4b5563;
+          font-size: clamp(16px, 4vw, 20px);
+          line-height: 1.55;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 14px;
+          margin-top: 26px;
+        }
+
+        .card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          min-height: 118px;
+          padding: 18px;
+          border: 1px solid rgba(233, 107, 18, 0.14);
+          border-radius: 24px;
+          background: rgba(255, 255, 255, 0.86);
+          box-shadow: 0 16px 40px rgba(139, 63, 11, 0.12);
+          text-decoration: none;
+          color: inherit;
+          transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .card:active {
+          transform: scale(0.985);
+        }
+
+        .avatar {
+          width: 58px;
+          height: 58px;
+          flex: 0 0 auto;
+          border-radius: 18px;
+          display: grid;
+          place-items: center;
+          background: linear-gradient(135deg, var(--cream), var(--pink));
+          color: var(--primary);
+          font-size: 26px;
+          font-weight: 800;
+        }
+
+        .info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .info h3 {
+          margin: 0;
+          color: var(--primary);
+          font-size: 22px;
+        }
+
+        .info p {
+          margin: 5px 0 0;
+          color: #6b7280;
+          font-size: 14px;
+        }
+
+        .action {
+          flex: 0 0 auto;
+          padding: 11px 14px;
+          border-radius: 999px;
+          background: var(--accent);
+          color: white;
+          font-weight: 800;
+          font-size: 14px;
+        }
+
+        .footer {
+          margin-top: 24px;
+          color: #6b7280;
+          font-size: 13px;
+          text-align: center;
+        }
+
+        @media (min-width: 720px) {
+          .page {
+            padding: 44px 28px 52px;
+          }
+
+          .grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+          }
+
+          .card {
+            min-height: 230px;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .action {
+            width: 100%;
+            text-align: center;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <main class="page">
+        <header class="brand">
+          <div class="brand-icon">🎂</div>
+          <div>
+            <h1>Kondorito</h1>
+            <p>Postres y Pasteles</p>
+          </div>
+        </header>
+
+        <section class="hero">
+          <div class="eyebrow">🛵 Acceso domiciliarios</div>
+          <h2>Domiciliarios Kondorito</h2>
+          <p>Selecciona tu perfil para conectarte a la PWA de entregas y recibir pedidos en tiempo real.</p>
+        </section>
+
+        <section class="grid" aria-label="Seleccionar domiciliario">
+          <a class="card" href="/pwa/?domiciliario_id=1">
+            <div class="avatar">P</div>
+            <div class="info">
+              <h3>Pedro</h3>
+              <p>Domiciliario ID 1</p>
+            </div>
+            <div class="action">Conectar</div>
+          </a>
+
+          <a class="card" href="/pwa/?domiciliario_id=2">
+            <div class="avatar">F</div>
+            <div class="info">
+              <h3>Fernando</h3>
+              <p>Domiciliario ID 2</p>
+            </div>
+            <div class="action">Conectar</div>
+          </a>
+
+          <a class="card" href="/pwa/?domiciliario_id=3">
+            <div class="avatar">D</div>
+            <div class="info">
+              <h3>Domiciliario 3</h3>
+              <p>Domiciliario ID 3</p>
+            </div>
+            <div class="action">Conectar</div>
+          </a>
+        </section>
+
+        <p class="footer">Sistema de tracking en tiempo real para entregas de Kondorito.</p>
+      </main>
+    </body>
+    </html>
   `);
 });
 
