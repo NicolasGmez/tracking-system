@@ -235,7 +235,7 @@ app.get("/", (req, res) => {
           <a class="card" href="/pwa/?domiciliario_id=1">
             <div class="avatar">P</div>
             <div class="info">
-              <h3>Pedro</h3>
+              <h3>Jaider</h3>
               <p>Domiciliario ID 1</p>
             </div>
             <div class="action">Conectar</div>
@@ -244,7 +244,7 @@ app.get("/", (req, res) => {
           <a class="card" href="/pwa/?domiciliario_id=2">
             <div class="avatar">F</div>
             <div class="info">
-              <h3>Fernando</h3>
+              <h3>Nicolás</h3>
               <p>Domiciliario ID 2</p>
             </div>
             <div class="action">Conectar</div>
@@ -253,7 +253,7 @@ app.get("/", (req, res) => {
           <a class="card" href="/pwa/?domiciliario_id=3">
             <div class="avatar">D</div>
             <div class="info">
-              <h3>Domiciliario 3</h3>
+              <h3>Monsalve</h3>
               <p>Domiciliario ID 3</p>
             </div>
             <div class="action">Conectar</div>
