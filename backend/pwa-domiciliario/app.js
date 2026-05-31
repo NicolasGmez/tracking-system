@@ -16,10 +16,15 @@ const params = new URLSearchParams(window.location.search);
 const domiciliarioId = params.get("domiciliario_id");
 
 // Icono que representa la posicion actual del domiciliario.
-const motoIcon = L.icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/1048/1048313.png",
+const motoIcon = L.divIcon({
+  className: "",
+  html: `
+    <div style="width:38px;height:38px;border-radius:999px;background:#2563eb;color:white;display:grid;place-items:center;font-size:18px;border:3px solid white;box-shadow:0 8px 20px rgba(0,0,0,.2)">
+      <i class="fas fa-motorcycle"></i>
+    </div>
+  `,
   iconSize: [38, 38],
-  iconAnchor: [19, 38]
+  iconAnchor: [19, 19]
 });
 
 navigator.geolocation.getCurrentPosition((position) => {
